@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +26,7 @@ namespace Tutorial.API.Controllers
             _repository = repository;
         }
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> AddBook(BookModel model)
         {
             try
@@ -38,6 +40,7 @@ namespace Tutorial.API.Controllers
             }
         }
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetAllBook()
         {
             try
@@ -51,6 +54,7 @@ namespace Tutorial.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> GetBookById(int id)
         {
             try
@@ -64,6 +68,7 @@ namespace Tutorial.API.Controllers
             }
         }
         [HttpPut("id")]
+        [Authorize]
         public async Task<IActionResult> UpdateBook(int id, BookModel model)
         {
             try
@@ -77,6 +82,7 @@ namespace Tutorial.API.Controllers
             }
         }
         [HttpDelete("id")]
+        [Authorize]
         public async Task<IActionResult> DeleteBook(int id)
         {
             try
