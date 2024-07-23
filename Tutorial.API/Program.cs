@@ -1,3 +1,7 @@
+using Microsoft.EntityFrameworkCore;
+using Tutorial.API.Data;
+using Tutorial.API.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -9,6 +13,16 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy => 
     policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+
+builder.Services.AddDbContext<BookStoreContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("BookStore"));
+});
+
+builder.Services.AddAutoMapper(typeof(Program));
+
+//Life cycle DI:
+builder.Services.AddScoped<IBookRepository, BookRepository>();
 
 var app = builder.Build();
 
