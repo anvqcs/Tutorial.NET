@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Protocol.Core.Types;
 using Tutorial.API.Data;
+using Tutorial.API.Helper;
 using Tutorial.API.Models;
 using Tutorial.API.Repositories;
 
@@ -40,7 +41,7 @@ namespace Tutorial.API.Controllers
             }
         }
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> GetAllBook()
         {
             try

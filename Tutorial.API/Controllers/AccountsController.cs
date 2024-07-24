@@ -25,7 +25,7 @@ namespace Tutorial.API.Controllers
                 {
                     return Ok(result.Succeeded);
                 }
-                return Unauthorized();
+                return StatusCode(500);
             }
             catch (Exception ex)
             {
