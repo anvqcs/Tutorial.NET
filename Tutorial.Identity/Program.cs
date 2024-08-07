@@ -13,9 +13,23 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString)
  );
 
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-                    .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+{
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 8;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequiredUniqueChars = 4;
+})
+.AddEntityFrameworkStores<ApplicationDbContext>();
 
+// Configure the Application Cookie settings
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    // If the LoginPath isn't set, ASP.NET Core defaults the path to /Accounts/Login.
+    options.LoginPath = "/Accounts/Login"; // Set your login path here
+});
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 
 var app = builder.Build();

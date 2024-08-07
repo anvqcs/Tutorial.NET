@@ -1,11 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace Tutorial.Identity.Models
 {
     public class RegisterViewModel
     {
-
-        [Required]
+        [Required(ErrorMessage = "First Name is Required")]
         public required string FirstName { get; set; }
         [Required]
         public required string LastName { get; set; }
@@ -13,6 +13,7 @@ namespace Tutorial.Identity.Models
         [Required]
         [EmailAddress]
         [Display(Name = "Email")]
+        [Remote(action: "IsEmailAvailable", controller: "Accounts")]
         public required string Email { get; set; }
 
         [Required]

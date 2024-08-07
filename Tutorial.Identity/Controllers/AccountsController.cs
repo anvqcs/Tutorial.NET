@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Tutorial.Identity.Data;
 using Tutorial.Identity.Models;
 using Tutorial.Identity.Repositories;
 
@@ -7,11 +9,14 @@ namespace Tutorial.Identity.Controllers
 {
     public class AccountsController : Controller
     {
-        private IAccountRepository _repository;
+        private readonly IAccountRepository _repository;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public AccountsController(IAccountRepository repository)
+        public AccountsController(IAccountRepository repository
+                                , UserManager<ApplicationUser> userManager)
         {
             _repository = repository;
+            _userManager = userManager;
         }
         [HttpGet]
         public IActionResult Register()
@@ -39,20 +44,29 @@ namespace Tutorial.Identity.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login()
+        public IActionResult Login(string? ReturnUrl = null)
         {
+            ViewData["ReturnUrl"] = ReturnUrl;
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        [AllowAnonymous]
+        public async Task<IActionResult> Login(LoginViewModel model, string? ReturnUrl = null)
         {
             if (ModelState.IsValid)
             {
                 var result = await _repository.SignInAsync(model);
                 if (result.Succeeded)
                 {
-                    // Handle successful login
-                    return RedirectToAction(nameof(HomeController.Index), "Home");
+                    if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
+                    {
+                        return Redirect(ReturnUrl);
+                    }
+                    else
+                    {
+                        // Redirect to default page
+                        return RedirectToAction("Index", "Home");
+                    }
                 }
                 if (result.RequiresTwoFactor)
                 {
@@ -77,6 +91,24 @@ namespace Tutorial.Identity.Controllers
         {
             await _repository.SignOutAsync();
             return RedirectToAction("index", "home");
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        [HttpGet]
+        public async Task<IActionResult> IsEmailAvailable(string Email)
+        {
+            //Check If the Email Id is Already in the Database
+            var user = await _userManager.FindByEmailAsync(Email);
+
+            if (user == null)
+            {
+                return Json(true);
+            }
+            else
+            {
+                return Json($"Email {Email} is already in use.");
+            }
         }
     }
 }
