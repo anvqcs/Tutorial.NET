@@ -26,22 +26,24 @@ namespace Tutorial.Identity.Repositories
             _configuration = configuration;
         }
 
-        public async Task<string> LoginAsync(LoginModel model)
+        public async Task<SignInResult> SignInAsync(LoginViewModel model)
         {
-            string ret = "";
+            SignInResult result = null;
             try
             {
-
+                result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
             }
             catch (Exception)
             {
-
                 throw;
             }
-            return ret;
+            return result;
         }
-
-        public async Task<IdentityResult> RegisterAsync(RegisterModel model)
+        public async Task SignOutAsync()
+        {
+            await _signInManager.SignOutAsync();
+        }
+        public async Task<IdentityResult> RegisterAsync(RegisterViewModel model)
         {
             var user = new ApplicationUser
             {

@@ -2,7 +2,7 @@
 
 namespace Tutorial.Identity.Models
 {
-    public class RegisterModel
+    public class RegisterViewModel
     {
 
         [Required]

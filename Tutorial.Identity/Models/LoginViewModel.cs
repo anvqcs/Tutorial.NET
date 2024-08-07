@@ -2,7 +2,7 @@
 
 namespace Tutorial.Identity.Models
 {
-    public class LoginModel
+    public class LoginViewModel
     {
         [Required]
         [EmailAddress]
