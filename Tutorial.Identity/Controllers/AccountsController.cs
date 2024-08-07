@@ -49,8 +49,9 @@ namespace Tutorial.Identity.Controllers
             ViewData["ReturnUrl"] = ReturnUrl;
             return View();
         }
-        [HttpPost]
+
         [AllowAnonymous]
+        [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model, string? ReturnUrl = null)
         {
             if (ModelState.IsValid)
@@ -86,6 +87,7 @@ namespace Tutorial.Identity.Controllers
             return View(model);
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
@@ -109,6 +111,13 @@ namespace Tutorial.Identity.Controllers
             {
                 return Json($"Email {Email} is already in use.");
             }
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        public IActionResult AccessDenied()
+        {
+            return View();
         }
     }
 }
