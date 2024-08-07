@@ -12,12 +12,12 @@ namespace Tutorial.Identity.Repositories
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly IConfiguration _configuration;
 
         public AccountRepository(UserManager<ApplicationUser> userManager
                                 , SignInManager<ApplicationUser> signInManager
-                                , RoleManager<IdentityRole> roleManager
+                                , RoleManager<ApplicationRole> roleManager
                                 , IConfiguration configuration) 
         {
             _userManager = userManager;
