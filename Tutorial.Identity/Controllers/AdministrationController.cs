@@ -319,5 +319,40 @@ namespace Tutorial.Identity.Controllers
                 return View(model);
             }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteUser(string UserId)
+        {
+            //First Fetch the User you want to Delete
+            var user = await _userManager.FindByIdAsync(UserId);
+
+            if (user == null)
+            {
+                // Handle the case where the user wasn't found
+                ViewBag.ErrorMessage = $"User with Id = {UserId} cannot be found";
+                return View("NotFound");
+            }
+            else
+            {
+                //Delete the User Using DeleteAsync Method of UserManager Service
+                var result = await _userManager.DeleteAsync(user);
+
+                if (result.Succeeded)
+                {
+                    // Handle a successful delete
+                    return RedirectToAction("ListUsers");
+                }
+                else
+                {
+                    // Handle failure
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError("", error.Description);
+                    }
+                }
+
+                return View("ListUsers");
+            }
+        }
     }
 }
