@@ -9,5 +9,6 @@ namespace Tutorial.Identity.Data
         {
 
         }
+        public DbSet<ClaimsStore> ClaimsStores { get; set; }
     }
 }
