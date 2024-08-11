@@ -23,6 +23,7 @@ namespace Tutorial.Identity.Controllers
             _userManager = userManager;
             _roleManager = roleManager;
         }
+        #region Roles
         [HttpGet]
         public async Task<IActionResult> ListRoles()
         {
@@ -72,28 +73,23 @@ namespace Tutorial.Identity.Controllers
         [Authorize(Policy = "EditRolePolicy")]
         public async Task<IActionResult> EditRole(string roleId)
         {
-            //First Get the role information from the database
             ApplicationRole role = await _roleManager.FindByIdAsync(roleId);
             if (role == null)
             {
-                // Handle the scenario when the role is not found
                 return View("Error");
             }
-            //Populate the EditRoleViewModel from the data retrived from the database
             var model = new EditRoleViewModel
             {
                 Id = role.Id,
                 RoleName = role.Name,
                 Description = role.Description,
-                Users = new List<string>()
-                // You can add other properties here if needed
+                Users = new List<string>(),
+                Claims = new List<string>(),
             };
-            // Retrieve all the Users
+            var roleClaims = await _roleManager.GetClaimsAsync(role);
+            model.Claims = roleClaims.Select(x => x.Value).ToList();
             foreach (var user in _userManager.Users.ToList())
             {
-                // If the user is in this role, add the username to
-                // Users property of EditRoleViewModel. 
-                // This model object is then passed to the view for display
                 if (await _userManager.IsInRoleAsync(user, role.Name))
                 {
                     model.Users.Add(user.UserName);
@@ -242,7 +238,8 @@ namespace Tutorial.Identity.Controllers
 
             return RedirectToAction("EditRole", new { roleId = roleId });
         }
-
+        #endregion
+        #region Users
         [HttpGet]
         public IActionResult ListUsers()
         {
@@ -361,6 +358,7 @@ namespace Tutorial.Identity.Controllers
                 return View("ListUsers");
             }
         }
+        #endregion
 
         [HttpGet]
         public async Task<IActionResult> ManageUserRoles(string UserId)
@@ -487,6 +485,81 @@ namespace Tutorial.Identity.Controllers
                 }
             }
             return RedirectToAction("EditUser", new { UserId = model.UserId });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ManageRoleClaims(string RoleId)
+        {
+            var role = await _roleManager.FindByIdAsync(RoleId);
+
+            if (role == null)
+            {
+                ViewBag.ErrorMessage = $"Role with Id = {RoleId} cannot be found";
+                return View("NotFound");
+            }
+            ViewBag.RoleName = role.Name;
+            var model = new RoleClaimsViewModel
+            {
+                RoleId = RoleId,
+                Claims = new List<RoleClaim>()
+            };
+
+            var existingRoleClaims = await _roleManager.GetClaimsAsync(role);
+            foreach (var claim in await _context.ClaimsStores.ToListAsync())
+            {
+                RoleClaim roleClaim = new RoleClaim()
+                {
+                    ClaimType = claim.Type,
+                    ClaimValue = claim.Value
+                };
+                if (existingRoleClaims.Any(x => x.Type == claim.Type))
+                {
+                    roleClaim.IsSelected = true;
+                }
+                model.Claims.Add(roleClaim);
+            }
+            return View(model);
+        }
+        [HttpPost]
+        public async Task<IActionResult> ManageRoleClaims(RoleClaimsViewModel model)
+        {
+            var role = await _roleManager.FindByIdAsync(model.RoleId);
+            if (role == null)
+            {
+                ViewBag.ErrorMessage = $"Role with Id = {model.RoleId} cannot be found";
+                return View("NotFound");
+            }
+            var claims = await _roleManager.GetClaimsAsync(role);
+            
+            foreach (var item in model.Claims.Select((value, i) => (value, i)))
+            {
+                var value = item.value;
+                Claim claim = new Claim(value.ClaimType, value.ClaimValue);
+                IdentityResult? result;
+                if (value.IsSelected && !claims.Any(x => x.Type == value.ClaimType))
+                {
+                    result = await _roleManager.AddClaimAsync(role, claim);
+                }
+                else if (!value.IsSelected && claims.Any(x => x.Type == value.ClaimType))
+                {
+                    result = await _roleManager.RemoveClaimAsync(role, claim);
+                }
+                else
+                    continue;
+                if (result.Succeeded)
+                {
+                    if (item.i < model.Claims.Count - 1)
+                        continue;
+                    return RedirectToAction("EditRole", new { roleId = model.RoleId });
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Cannot add or removed selected claims to role");
+                    return View(model);
+                }
+
+            }
+            return RedirectToAction("EditRole", new { roleId = model.RoleId });
         }
     }
 }
