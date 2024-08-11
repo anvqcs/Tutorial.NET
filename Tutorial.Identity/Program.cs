@@ -26,9 +26,8 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("DeleteRolePolicy",
-        policy => policy.RequireClaim("DeleteRole")
-                        .RequireClaim("CreateRole"));
+    options.AddPolicy("EditRolePolicy", policy => policy.RequireClaim("EditRole"));
+    options.AddPolicy("DeleteRolePolicy", policy => policy.RequireClaim("DeleteRole"));
 });
 
 // Configure the Application Cookie settings

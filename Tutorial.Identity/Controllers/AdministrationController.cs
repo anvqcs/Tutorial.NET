@@ -69,6 +69,7 @@ namespace Tutorial.Identity.Controllers
             return View(roleModel);
         }
         [HttpGet]
+        [Authorize(Policy = "EditRolePolicy")]
         public async Task<IActionResult> EditRole(string roleId)
         {
             //First Get the role information from the database
@@ -101,6 +102,7 @@ namespace Tutorial.Identity.Controllers
             return View(model);
         }
         [HttpPost]
+        [Authorize(Policy = "EditRolePolicy")]
         public async Task<IActionResult> EditRole(EditRoleViewModel model)
         {
             if (ModelState.IsValid)
