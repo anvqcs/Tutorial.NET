@@ -58,7 +58,7 @@ namespace Tutorial.Identity.Controllers
                     IdentityResult result = await _roleManager.CreateAsync(identityRole);
                     if (result.Succeeded)
                     {
-                        return RedirectToAction("Index", "Home");
+                        return RedirectToAction(nameof(ListRoles));
                     }
                     foreach (IdentityError error in result.Errors)
                     {
@@ -133,6 +133,7 @@ namespace Tutorial.Identity.Controllers
 
         }
         [HttpPost]
+        [Authorize(Policy = "DeleteRolePolicy")]
         public async Task<IActionResult> DeleteRole(string roleId)
         {
             var role = await _roleManager.FindByIdAsync(roleId);
