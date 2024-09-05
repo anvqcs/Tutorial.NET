@@ -23,6 +23,13 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
     options.Password.RequiredUniqueChars = 4;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddAuthentication()
+.AddGoogle(options =>
+{
+    options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? "";
+    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? "";
+    // You can set other options as needed.
+});
 
 builder.Services.AddAuthorization(options =>
 {
